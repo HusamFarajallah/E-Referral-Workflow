@@ -1,0 +1,1308 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>منصة التحويلات الطبية - لوحة سير العمل</title>
+    <script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+    <style>
+      :root {
+        /* Light mode colors */
+        --bg-primary: #ffffff;
+        --bg-secondary: #f8f9fa;
+        --bg-tertiary: #f0f1f4;
+        --text-primary: #2c3e50;
+        --text-secondary: #7a8699;
+        --text-tertiary: #4a5568;
+        --border-color: #e9ecef;
+        --header-bg: linear-gradient(135deg, #5e72e4 0%, #825ee4 100%);
+        --accent-color: #5e72e4;
+        --accent-dark: #4c63d2;
+        --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.1);
+        --shadow-md: 0 2px 8px rgba(0, 0, 0, 0.08);
+      }
+
+      body.dark-mode {
+        --bg-primary: #1a1d23;
+        --bg-secondary: #232836;
+        --bg-tertiary: #2d3139;
+        --text-primary: #e8edf5;
+        --text-secondary: #a8b5c6;
+        --text-tertiary: #cbd5e0;
+        --border-color: #3d4451;
+        --header-bg: linear-gradient(135deg, #5e72e4 0%, #825ee4 100%);
+        --accent-color: #5e72e4;
+        --accent-dark: #7b8ff5;
+        --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.3);
+        --shadow-md: 0 2px 8px rgba(0, 0, 0, 0.25);
+      }
+
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+          sans-serif;
+        background: var(--bg-secondary);
+        min-height: 100vh;
+        padding: 20px;
+        color: var(--text-primary);
+        transition: background-color 0.3s ease, color 0.3s ease;
+      }
+
+      .container {
+        max-width: 1400px;
+        margin: 0 auto;
+        background: var(--bg-primary);
+        border-radius: 12px;
+        box-shadow: var(--shadow-md);
+        overflow: hidden;
+        transition: background-color 0.3s ease, box-shadow 0.3s ease;
+      }
+
+      .header {
+        background: var(--header-bg);
+        color: white;
+        padding: 35px 20px;
+        text-align: center;
+      }
+
+      .header h1 {
+        font-size: 2.5em;
+        margin-bottom: 10px;
+      }
+
+      .header p {
+        font-size: 1.1em;
+        opacity: 0.9;
+      }
+
+      .toggle-buttons {
+        padding: 25px;
+        position: absolute;
+        top: 20px;
+        right: 20px;
+        display: flex;
+        gap: 10px;
+      }
+
+      .language-toggle,
+      .dark-mode-toggle {
+        background: rgba(255, 255, 255, 0.95);
+        border: none;
+        padding: 8px 16px;
+        border-radius: 8px;
+        cursor: pointer;
+        font-weight: 600;
+        font-size: 0.9em;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        transition: all 0.2s ease;
+        color: #2c3e50;
+      }
+
+      .language-toggle:hover,
+      .dark-mode-toggle:hover {
+        background: white;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+      }
+
+      body.dark-mode .language-toggle,
+      body.dark-mode .dark-mode-toggle {
+        background: rgba(45, 49, 57, 0.95);
+        color: #e8edf5;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+      }
+
+      body.dark-mode .language-toggle:hover,
+      body.dark-mode .dark-mode-toggle:hover {
+        background: #3d4451;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+      }
+
+      .content {
+        display: flex;
+        min-height: 600px;
+      }
+
+      .sidebar {
+        width: 280px;
+        background: var(--bg-secondary);
+        border-left: 1px solid var(--border-color);
+        overflow-y: auto;
+        padding: 15px 0;
+        transition: background-color 0.3s ease, border-color 0.3s ease;
+      }
+
+      .sidebar-item {
+        padding: 12px 20px;
+        cursor: pointer;
+        border-left: 3px solid transparent;
+        transition: all 0.2s ease;
+        font-size: 0.9em;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        color: var(--text-tertiary);
+      }
+
+      .sidebar-item:hover {
+        background: var(--bg-tertiary);
+        border-left-color: var(--accent-color);
+      }
+
+      .sidebar-item.active {
+        background: rgba(94, 114, 228, 0.1);
+        color: var(--accent-color);
+        border-left-color: var(--accent-color);
+        font-weight: 600;
+      }
+
+      .main-content {
+        flex: 1;
+        padding: 40px;
+        overflow-y: auto;
+        background: var(--bg-primary);
+        transition: background-color 0.3s ease;
+      }
+
+      .flowchart-container {
+        display: none;
+        animation: fadeIn 0.5s ease-in;
+      }
+
+      .flowchart-container.active {
+        display: block;
+      }
+
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+          transform: translateY(10px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      .flowchart-title {
+        font-size: 1.7em;
+        color: var(--text-primary);
+        margin-bottom: 8px;
+        padding-bottom: 12px;
+        border-bottom: 2px solid var(--accent-color);
+        font-weight: 700;
+      }
+
+      .flowchart-description {
+        color: var(--text-secondary);
+        margin-bottom: 25px;
+        font-size: 0.9em;
+        line-height: 1.5;
+      }
+
+      .mermaid {
+        background: var(--bg-secondary);
+        padding: 25px;
+        border-radius: 8px;
+        border: 1px solid var(--border-color);
+        overflow-x: auto;
+        transition: background-color 0.3s ease, border-color 0.3s ease;
+      }
+
+      .controls {
+        display: flex;
+        gap: 10px;
+        margin-top: 20px;
+        justify-content: space-between;
+        flex-wrap: wrap;
+      }
+
+      button {
+        padding: 9px 18px;
+        background: var(--accent-color);
+        color: white;
+        border: none;
+        border-radius: 6px;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        font-size: 0.9em;
+        font-weight: 500;
+      }
+
+      button:hover {
+        background: var(--accent-dark);
+        box-shadow: 0 2px 6px rgba(94, 114, 228, 0.3);
+      }
+
+      button:active {
+        transform: scale(0.98);
+      }
+
+      body.dark-mode button:hover {
+        box-shadow: 0 2px 6px rgba(123, 143, 245, 0.4);
+      }
+
+      .search-box {
+        padding: 15px 20px;
+        border-bottom: 1px solid var(--border-color);
+        background: var(--bg-primary);
+        transition: background-color 0.3s ease, border-color 0.3s ease;
+      }
+
+      .search-box input {
+        width: 100%;
+        padding: 10px 14px;
+        border: 1px solid var(--border-color);
+        border-radius: 6px;
+        font-size: 0.9em;
+        transition: all 0.2s ease;
+        background: var(--bg-primary);
+        color: var(--text-primary);
+      }
+
+      .search-box input::placeholder {
+        color: var(--text-secondary);
+      }
+
+      .search-box input:focus {
+        outline: none;
+        border-color: var(--accent-color);
+        box-shadow: 0 0 0 3px rgba(94, 114, 228, 0.1);
+      }
+
+      body.dark-mode .search-box input:focus {
+        box-shadow: 0 0 0 3px rgba(123, 143, 245, 0.2);
+      }
+
+      /* Dark mode adjustments for legend colors */
+      body.dark-mode .legend-color {
+        border: 1px solid rgba(200, 200, 200, 0.3);
+      }
+
+      .tabs {
+        display: flex;
+        gap: 5px;
+        margin-bottom: 20px;
+        border-bottom: 1px solid var(--border-color);
+        padding: 0 20px;
+        padding-bottom: 0;
+        transition: border-color 0.3s ease;
+      }
+
+      .tab-button {
+        padding: 10px 20px;
+        background: transparent;
+        border: none;
+        border-bottom: 3px solid transparent;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        font-weight: 600;
+        color: var(--text-secondary);
+        font-size: 0.95em;
+        height: 60px;
+      }
+
+      .tab-button:hover {
+        color: var(--accent-color);
+        background-color: #7964e43b;
+        border-bottom-color: var(--border-color);
+      }
+
+      .tab-button.active {
+        color: var(--accent-color);
+        background-color: #7964e43b;
+
+        border-bottom-color: var(--accent-color);
+      }
+
+      /* Dark mode tab button styling */
+      body.dark-mode .tab-button {
+        color: var(--text-secondary);
+      }
+
+      body.dark-mode .tab-button:hover {
+        color: #7b8ff5;
+        border-bottom-color: #7b8ff5;
+      }
+
+      body.dark-mode .tab-button.active {
+        color: #7b8ff5;
+        border-bottom-color: #7b8ff5;
+      }
+
+      .stats {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 15px;
+        margin-bottom: 20px;
+      }
+
+      .stat-card {
+        background: var(--bg-secondary);
+        padding: 20px;
+        border-radius: 8px;
+        text-align: center;
+        border: 1px solid var(--border-color);
+        transition: all 0.2s ease;
+      }
+
+      .stat-card:hover {
+        border-color: var(--accent-color);
+        background: rgba(94, 114, 228, 0.05);
+      }
+
+      .stat-number {
+        font-size: 2.2em;
+        color: var(--accent-color);
+        font-weight: 700;
+      }
+
+      .stat-label {
+        color: var(--text-secondary);
+        font-size: 0.85em;
+        margin-top: 8px;
+        font-weight: 500;
+      }
+
+      .footer {
+        background: var(--bg-secondary);
+        padding: 20px;
+        text-align: center;
+        border-top: 1px solid var(--border-color);
+        color: var(--text-secondary);
+        font-size: 0.85em;
+        transition: background-color 0.3s ease, border-color 0.3s ease;
+      }
+
+      .legend {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+        gap: 15px;
+        padding: 20px;
+        background: var(--bg-secondary);
+        border-radius: 8px;
+        margin-bottom: 25px;
+        border: 1px solid var(--border-color);
+        transition: background-color 0.3s ease, border-color 0.3s ease;
+      }
+
+      .legend-item {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-size: 0.9em;
+        color: var(--text-tertiary);
+      }
+
+      .legend-color {
+        width: 18px;
+        height: 18px;
+        border-radius: 4px;
+        flex-shrink: 0;
+      }
+
+      @media (max-width: 768px) {
+        .content {
+          flex-direction: column;
+        }
+
+        .sidebar {
+          width: 100%;
+          max-height: 300px;
+          border-left: none;
+          border-bottom: 1px solid #ddd;
+          display: flex;
+          overflow-x: auto;
+        }
+
+        .main-content {
+          padding: 20px;
+        }
+
+        .header h1 {
+          font-size: 1.8em;
+        }
+
+        .tabs {
+          flex-wrap: wrap;
+        }
+      }
+
+      .hidden {
+        display: none;
+      }
+
+      ::-webkit-scrollbar {
+        width: 8px;
+        height: 8px;
+      }
+
+      ::-webkit-scrollbar-track {
+        background: var(--bg-secondary);
+      }
+
+      ::-webkit-scrollbar-thumb {
+        background: var(--border-color);
+        border-radius: 4px;
+      }
+
+      ::-webkit-scrollbar-thumb:hover {
+        background: var(--accent-color);
+      }
+    </style>
+  </head>
+  <body>
+    <div class="toggle-buttons">
+      <button
+        class="dark-mode-toggle"
+        onclick="toggleDarkMode()"
+        title="Toggle Dark Mode"
+      >
+        🌙
+      </button>
+      <button class="language-toggle" onclick="toggleLanguage()">
+        English | عربي
+      </button>
+    </div>
+
+    <div class="container">
+      <div class="header">
+        <h1 id="title">منصة التحويلات الطبية - لوحة سير العمل</h1>
+        <p id="subtitle">18 رسم بياني تفاعلي لسير العمليات</p>
+      </div>
+
+      <div class="tabs">
+        <button
+          class="tab-button active"
+          onclick="switchTab('all')"
+          id="tab-all"
+        >
+          جميع الرسوم البيانية
+        </button>
+        <button
+          class="tab-button"
+          onclick="switchTab('overview')"
+          id="tab-overview"
+        >
+          نظرة عامة
+        </button>
+        <button
+          class="tab-button"
+          onclick="switchTab('regular')"
+          id="tab-regular"
+        >
+          التحويلات العادية
+        </button>
+        <button
+          class="tab-button"
+          onclick="switchTab('special')"
+          id="tab-special"
+        >
+          التحويلات الخاصة
+        </button>
+        <button
+          class="tab-button"
+          onclick="switchTab('processes')"
+          id="tab-processes"
+        >
+          العمليات
+        </button>
+      </div>
+
+      <div class="content">
+        <div class="sidebar">
+          <div class="search-box">
+            <input
+              type="text"
+              id="searchInput"
+              placeholder="البحث..."
+              onkeyup="filterDiagrams()"
+            />
+          </div>
+          <div id="diagramList"></div>
+        </div>
+
+        <div class="main-content">
+          <div class="stats">
+            <div class="stat-card">
+              <div class="stat-number">18</div>
+              <div class="stat-label" id="label-diagrams">رسم بياني</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-number">4</div>
+              <div class="stat-label" id="label-categories">فئات</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-number">100%</div>
+              <div class="stat-label" id="label-coverage">تغطية</div>
+            </div>
+          </div>
+
+          <div class="legend">
+            <div class="legend-item">
+              <div class="legend-color" style="background: #e1f5ff"></div>
+              <span id="legend-start">البداية/الإدخال</span>
+            </div>
+            <div class="legend-item">
+              <div class="legend-color" style="background: #fff3e0"></div>
+              <span id="legend-decision">نقاط القرار</span>
+            </div>
+            <div class="legend-item">
+              <div class="legend-color" style="background: #c8e6c9"></div>
+              <span id="legend-success">النجاح/الموافقة</span>
+            </div>
+            <div class="legend-item">
+              <div class="legend-color" style="background: #ffcdd2"></div>
+              <span id="legend-reject">الرفض/التوقف</span>
+            </div>
+          </div>
+
+          <div id="flowcharts-container"></div>
+        </div>
+      </div>
+
+      <div class="footer" id="footer">
+        جميع الحقوق محفوظة © 2024 منصة التحويلات الطبية
+      </div>
+    </div>
+
+    <script>
+      let currentLanguage = "ar";
+      let currentTab = "overview";
+      let darkMode = localStorage.getItem("darkMode") === "true";
+
+      // Initialize dark mode on page load
+      function initDarkMode() {
+        if (darkMode) {
+          document.body.classList.add("dark-mode");
+          updateDarkModeButton();
+        }
+      }
+
+      function toggleDarkMode() {
+        darkMode = !darkMode;
+        localStorage.setItem("darkMode", darkMode);
+        document.body.classList.toggle("dark-mode");
+        updateDarkModeButton();
+      }
+
+      function updateDarkModeButton() {
+        const btn = document.querySelector(".dark-mode-toggle");
+        if (btn) {
+          btn.textContent = darkMode ? "☀️" : "🌙";
+          btn.title = darkMode ? "Toggle Light Mode" : "Toggle Dark Mode";
+        }
+      }
+
+      const diagrams = [
+        {
+          id: "diagram1",
+          nameAr: "1. نظرة عامة على سير العمل الرئيسي",
+          nameEn: "1. Main Workflow Overview",
+          descAr: "قرار أساسي: هل هي حالة طارئة أم عادية؟",
+          descEn: "Basic decision: Emergency or Regular case?",
+          category: "overview",
+          code: `flowchart TD
+    START([🏥 المريض في المستشفى]) --> EVAL["👨‍⚕️ تقييم الطبيب<br/>المريض يحتاج تحويل"]
+    EVAL --> EMERGENCY{هل هي حالة<br/>طارئة؟}
+    EMERGENCY -->|نعم| FAST["🚑 تحويل طارئ سريع<br/>1-2 ساعة"]
+    EMERGENCY -->|لا| REGULAR["📋 تحويل عادي<br/>10-14 يوم"]
+    style START fill:#e1f5ff
+    style EMERGENCY fill:#fff3e0
+    style FAST fill:#ffebee
+    style REGULAR fill:#f3e5f5`,
+        },
+        {
+          id: "diagram2",
+          nameAr: "2. عملية التحويل العادي الكاملة",
+          nameEn: "2. Complete Regular Referral Process",
+          descAr: "العملية الكاملة من الإنشاء إلى الموافقة",
+          descEn: "Complete process from creation to approval",
+          category: "regular",
+          code: `flowchart TD
+    START([👨‍⚕️ الطبيب ينشئ طلب التحويل]) --> FORM["📝 ملء النموذج<br/>• بيانات المريض<br/>• التشخيص الطبي<br/>• سبب التحويل"]
+    FORM --> VALIDATE["✓ التحقق من البيانات"]
+    VALIDATE --> VAL_CHECK{هل التحقق<br/>نجح؟}
+    VAL_CHECK -->|لا| STOP1["❌ توقف"]
+    VAL_CHECK -->|نعم| CHIEF["👤 رئيس القسم"]
+    CHIEF --> CHIEF_DEC{قرار<br/>القسم؟}
+    CHIEF_DEC -->|موافقة| DIRECTOR["👤 مدير المستشفى"]
+    DIRECTOR --> DIR_DEC{قرار<br/>المدير؟}
+    DIR_DEC -->|موافقة| ACTIVE["✅ التحويل نشط<br/>3 أشهر صلاحية"]
+    ACTIVE --> END([🏥 مرحلة العلاج])
+    style START fill:#e1f5ff
+    style ACTIVE fill:#c8e6c9
+    style END fill:#c8e6c9
+    style STOP1 fill:#ffcdd2`,
+        },
+        {
+          id: "diagram3",
+          nameAr: "3. التحويل الطارئ - المسار السريع",
+          nameEn: "3. Emergency Referral - Fast Track",
+          descAr: "موافقات متوازية للحالات الطارئة",
+          descEn: "Parallel approvals for emergency cases",
+          category: "processes",
+          code: `flowchart TD
+    START([🚑 حالة طارئة]) --> QUICK["⚡ إدخال بيانات سريع"]
+    QUICK --> PARALLEL["⚙️ موافقات متوازية<br/>الثلاثة معاً"]
+    PARALLEL --> CHIEF_E["✓ رئيس القسم"]
+    PARALLEL --> DIR_E["✓ مدير المستشفى"]
+    PARALLEL --> OPS_E["✓ مدير العمليات"]
+    CHIEF_E --> ALL_OK{الجميع<br/>يوافقون؟}
+    DIR_E --> ALL_OK
+    OPS_E --> ALL_OK
+    ALL_OK -->|أي رفض| REJECT["❌ مرفوض"]
+    ALL_OK -->|الجميع| COORD["🔗 تنسيق فوري"]
+    COORD --> TREATMENT["🏥 بدء العلاج"]
+    style START fill:#ffebee
+    style PARALLEL fill:#fff3e0
+    style TREATMENT fill:#c8e6c9
+    style REJECT fill:#ffcdd2`,
+        },
+        {
+          id: "diagram4",
+          nameAr: "4. عملية مراجعة اللجنة",
+          nameEn: "4. Committee Review Process",
+          descAr: "التحقق والتصويت من قبل اللجنة",
+          descEn: "Verification and voting by committee",
+          category: "processes",
+          code: `flowchart TD
+    INPUT([✉️ الطلب يصل<br/>للجنة]) --> CHECK["✓ فحص الاكتمال"]
+    CHECK --> COMPLETE{هل<br/>كامل؟}
+    COMPLETE -->|لا| REQUEST["📧 طلب مستندات"]
+    REQUEST --> UPLOAD["📤 ترفع المستندات"]
+    UPLOAD --> CHECK
+    COMPLETE -->|نعم| VOTE["🗳️ تصويت اللجنة<br/>50% + 1 مطلوب"]
+    VOTE --> OUTCOME{نتيجة<br/>التصويت؟}
+    OUTCOME -->|موافقة| APPROVED["✅ موافق عليه"]
+    OUTCOME -->|رفض| REJECTED["❌ مرفوض"]
+    OUTCOME -->|ناقص| INCOMPLETE["⚠️ يحتاج معلومات"]
+    INCOMPLETE --> REQUEST
+    style INPUT fill:#e3f2fd
+    style APPROVED fill:#c8e6c9
+    style REJECTED fill:#ffcdd2`,
+        },
+        {
+          id: "diagram5",
+          nameAr: "5. دائرة العمليات - المراجعة النهائية",
+          nameEn: "5. Operations Department - Final Review",
+          descAr: "المراجعة النهائية والموافقة",
+          descEn: "Final review and approval",
+          category: "processes",
+          code: `flowchart TD
+    INPUT([📥 من اللجنة]) --> MED_REV["👥 لجنة المراجعة<br/>الطبية"]
+    MED_REV --> MED_CHECK{مراجعة<br/>صحيحة؟}
+    MED_CHECK -->|مشاكل| REJECT1["❌ رفض"]
+    MED_CHECK -->|حسناً| DIR_REV["👤 مدير<br/>العمليات"]
+    DIR_REV --> DIR_SIGN["✍️ التوقيع<br/>الرقمي"]
+    DIR_SIGN --> UNIT_DIR["👤 مدير الوحدة<br/>موافقة نهائية"]
+    UNIT_DIR --> ACTIVE["✅ التحويل نشط<br/>3 أشهر صلاحية"]
+    ACTIVE --> SEND["📤 ارسل للمستشفى"]
+    SEND --> END([✅ معالجة])
+    style INPUT fill:#e0f2f1
+    style ACTIVE fill:#c8e6c9
+    style END fill:#c8e6c9
+    style REJECT1 fill:#ffcdd2`,
+        },
+        {
+          id: "diagram6",
+          nameAr: "6. المستشفى المستقبلة تعالج التحويل",
+          nameEn: "6. Receiving Hospital Processes Referral",
+          descAr: "قبول المريض والعلاج",
+          descEn: "Patient acceptance and treatment",
+          category: "processes",
+          code: `flowchart TD
+    START([📥 المستشفى تستقبل]) --> REVIEW["🏥 هل تستطيع<br/>تقديم الخدمة؟"]
+    REVIEW --> DECISION{قرار<br/>المستشفى؟}
+    DECISION -->|لا| REJECT["❌ رفض"]
+    DECISION -->|نعم| ACCEPT["✅ قبول"]
+    REJECT --> AUTO["🔄 دائرة العمليات<br/>تغير الوجهة"]
+    AUTO --> ALT["🏥 مستشفى بديلة"]
+    ACCEPT --> CONTACT["📞 اتصل بالمريض<br/>48 ساعة"]
+    CONTACT --> ARRIVE["👤 المريض يصل"]
+    ARRIVE --> ACTIVE["✅ التحويل نشط"]
+    ACTIVE --> UPDATES["📝 تحديثات يومية"]
+    UPDATES --> DISCHARGE["🚪 خروج المريض"]
+    style ACCEPT fill:#c8e6c9
+    style ACTIVE fill:#c8e6c9
+    style DISCHARGE fill:#c8e6c9
+    style REJECT fill:#ffcdd2`,
+        },
+        {
+          id: "diagram7",
+          nameAr: "7. التحقق المالي والدفع",
+          nameEn: "7. Financial Verification & Payment",
+          descAr: "المراجعة المالية والدفع",
+          descEn: "Financial review and payment",
+          category: "processes",
+          code: `flowchart TD
+    INPUT([🏁 تم العلاج]) --> CONTRACT["👥 دائرة العقود<br/>مراجعة تقنية"]
+    CONTRACT --> CONTRACT_CHK{مراجعة<br/>تقنية؟}
+    CONTRACT_CHK -->|مشاكل| CONTRACT_REJ["❌ رفض"]
+    CONTRACT_REJ --> REVISE1["🔄 تعديل"]
+    REVISE1 --> CONTRACT
+    CONTRACT_CHK -->|حسناً| FIN_STAFF["👤 فريق المالية<br/>مراجعة الفاتورة"]
+    FIN_STAFF --> FIN_CHK{فحص<br/>مالي؟}
+    FIN_CHK -->|مشاكل| FIN_REJ["❌ رفض"]
+    FIN_REJ --> REVISE2["🔄 تعديل"]
+    REVISE2 --> FIN_STAFF
+    FIN_CHK -->|حسناً| PAYMENT["💳 معالجة الدفع"]
+    PAYMENT --> END([✅ الحالة مغلقة])
+    style PAYMENT fill:#c8e6c9
+    style END fill:#c8e6c9
+    style CONTRACT_REJ fill:#ffcdd2
+    style FIN_REJ fill:#ffcdd2`,
+        },
+        {
+          id: "diagram8",
+          nameAr: "8. تغيير وجهة التحويل",
+          nameEn: "8. Change Referral Destination",
+          descAr: "تغيير المستشفى المقررة",
+          descEn: "Changing the assigned hospital",
+          category: "regular",
+          code: `flowchart TD
+    START{سبب<br/>التغيير؟}
+    START -->|المستشفى ترفض| A["المستشفى تختار<br/>رفض التحويل"]
+    START -->|طلب المريض| B["المريض يطلب<br/>مع سبب"]
+    A --> AUTO["🔄 دائرة العمليات<br/>تغير الوجهة"]
+    AUTO --> NEW_A["📤 ارسل لمستشفى<br/>جديدة"]
+    B --> OPS_REV["🔍 العمليات<br/>تراجع"]
+    OPS_REV --> APPROVE{توافق؟}
+    APPROVE -->|لا| DENY["❌ رفض"]
+    APPROVE -->|نعم| NEW_B["📤 ارسل لمستشفى<br/>جديدة"]
+    NEW_A --> END_A([معالجة])
+    NEW_B --> END_B([معالجة])
+    DENY --> END_C([احتفظ بالمسار])
+    style APPROVE fill:#fff3e0
+    style NEW_A fill:#c8e6c9
+    style NEW_B fill:#c8e6c9
+    style END_A fill:#c8e6c9
+    style END_B fill:#c8e6c9
+    style DENY fill:#ffcdd2`,
+        },
+        {
+          id: "diagram9",
+          nameAr: "9. تمديد التحويل - استمرار العلاج",
+          nameEn: "9. Extend Referral - Treatment Continuation",
+          descAr: "تمديد العلاج المستمر",
+          descEn: "Extending ongoing treatment",
+          category: "regular",
+          code: `flowchart TD
+    START([المريض يحتاج<br/>علاج أكثر]) --> REQUEST["🏥 تطلب تمديد<br/>مع تقرير طبي"]
+    REQUEST --> OPS_CHECK["🔍 العمليات<br/>تفحص"]
+    OPS_CHECK --> DECISION{قرار<br/>العمليات؟}
+    DECISION -->|مرفوض| REJECT["❌ مرفوض"]
+    DECISION -->|موافقة| EXTEND["✅ تمديد موافق"]
+    EXTEND --> ISSUE["📤 ارسل تمديد"]
+    ISSUE --> CONTINUE["✅ العلاج يستمر"]
+    CONTINUE --> END_OK([استمرار])
+    REJECT --> SMS_NO["📱 رسالة للمريض"]
+    SMS_NO --> END_NO([أعد التقديم])
+    style EXTEND fill:#c8e6c9
+    style CONTINUE fill:#c8e6c9
+    style END_OK fill:#c8e6c9
+    style REJECT fill:#ffcdd2`,
+        },
+        {
+          id: "diagram10",
+          nameAr: "10. تجديد التحويل - المنتهي الصلاحية",
+          nameEn: "10. Renew Referral - Expired Referral",
+          descAr: "تجديد التحويل المنتهي",
+          descEn: "Renewing expired referral",
+          category: "regular",
+          code: `flowchart TD
+    START([تحويل منتهي<br/>لم يستخدم]) --> RETURN["👤 المريض يعود"]
+    RETURN --> SUBMIT["🏥 ترسل تجديد"]
+    SUBMIT --> OPS_EVAL["🔍 العمليات<br/>تقيم"]
+    OPS_EVAL --> DECISION{قرار؟}
+    DECISION -->|تجديد| RENEW["✅ تجديد"]
+    DECISION -->|رفض| REJ["❌ رفض"]
+    DECISION -->|تغيير| CHANGE["🔄 تغيير"]
+    RENEW --> END_OK([استمرار العلاج])
+    REJ --> END_NO([لا يمكن])
+    CHANGE --> END_CHG([مستشفى جديدة])
+    style DECISION fill:#fff3e0
+    style RENEW fill:#c8e6c9
+    style END_OK fill:#c8e6c9
+    style REJ fill:#ffcdd2
+    style END_NO fill:#ffcdd2`,
+        },
+        {
+          id: "diagram11",
+          nameAr: "11. تحويل خاص: القدس",
+          nameEn: "11. Special: Jerusalem Referrals",
+          descAr: "تحويلات منطقة القدس",
+          descEn: "Jerusalem region referrals",
+          category: "special",
+          code: `flowchart TD
+    START([مديرية صحة<br/>القدس]) --> REQUIRE["📋 يتطلب:<br/>• تأمين فلسطيني<br/>• إثبات سكن<br/>• تقرير طبي"]
+    REQUIRE --> SUBMIT["📤 ارسل"]
+    SUBMIT --> OPS_DIR["🚀 مسار سريع<br/>بدون لجان!"]
+    OPS_DIR --> DECISION{العمليات<br/>توافق؟}
+    DECISION -->|نعم| APPROVE["✅ موافق"]
+    DECISION -->|لا| REJECT["❌ مرفوض"]
+    APPROVE --> FASTER["⚡ موافقة أسرع"]
+    FASTER --> END_OK([علاج])
+    REJECT --> END_NO([أعد التقديم])
+    style OPS_DIR fill:#fff3e0
+    style FASTER fill:#c8e6c9
+    style END_OK fill:#c8e6c9
+    style REJECT fill:#ffcdd2`,
+        },
+        {
+          id: "diagram12",
+          nameAr: "12. تحويل خاص: الخدمات الطبية العسكرية",
+          nameEn: "12. Special: Military Medical Services",
+          descAr: "تحويلات الخدمات العسكرية",
+          descEn: "Military medical services referrals",
+          category: "special",
+          code: `flowchart TD
+    START([الخدمات الطبية<br/>العسكرية]) --> DOCS["📋 يتطلب:<br/>• كتاب تفويض<br/>• إثبات عمل<br/>• موافقة عسكرية"]
+    DOCS --> MIL_COM["⚔️ اللجنة<br/>العسكرية"]
+    MIL_COM --> SUBMIT["📤 ارسل"]
+    SUBMIT --> OPS_REV["🔍 العمليات<br/>مراجعة"]
+    OPS_REV --> DECISION{العمليات<br/>توافق؟}
+    DECISION -->|نعم| APPROVE["✅ موافق"]
+    DECISION -->|لا| REJECT["❌ مرفوض"]
+    APPROVE --> COORD["🔗 تنسيق عسكري"]
+    COORD --> END_OK([علاج])
+    REJECT --> END_NO([أعد التقديم])
+    style MIL_COM fill:#f3e5f5
+    style APPROVE fill:#c8e6c9
+    style END_OK fill:#c8e6c9
+    style REJECT fill:#ffcdd2`,
+        },
+        {
+          id: "diagram13",
+          nameAr: "13. تحويل خاص: قطاع غزة",
+          nameEn: "13. Special: Gaza Sector",
+          descAr: "تحويلات قطاع غزة",
+          descEn: "Gaza sector referrals",
+          category: "special",
+          code: `flowchart TD
+    START([مستشفى غزة]) --> FORM["📋 ملء استمارة"]
+    FORM --> GZ_COM["🏛️ لجنة غزة<br/>15 عضو"]
+    GZ_COM --> GZ_VOTE{قرار<br/>اللجنة؟}
+    GZ_VOTE -->|موافقة| GZ_APP["✅ اللجنة"]
+    GZ_VOTE -->|رفض| GZ_REJ["❌ اللجنة"]
+    GZ_VOTE -->|ناقص| GZ_INC["⚠️ مستندات"]
+    GZ_APP --> OPS_FINAL["🔍 العمليات<br/>فحص نهائي"]
+    GZ_INC --> DOCS_UP["📤 ترفع"]
+    DOCS_UP --> GZ_COM
+    OPS_FINAL --> OPS_DEC{العمليات؟}
+    OPS_DEC -->|نعم| FINAL_APP["✅ موافقة نهائية"]
+    OPS_DEC -->|لا| FINAL_REJ["❌ رفض"]
+    FINAL_APP --> END_OK([علاج])
+    GZ_REJ --> END_NO1([أعد])
+    FINAL_REJ --> END_NO2([أعد])
+    style GZ_COM fill:#fff3e0
+    style FINAL_APP fill:#c8e6c9
+    style END_OK fill:#c8e6c9
+    style GZ_REJ fill:#ffcdd2`,
+        },
+        {
+          id: "diagram14",
+          nameAr: "14. مستشفيات الخط الأخضر - إسرائيلية",
+          nameEn: "14. Green Line Hospitals - Israeli",
+          descAr: "تحويلات المستشفيات الإسرائيلية",
+          descEn: "Israeli hospital referrals",
+          category: "special",
+          code: `flowchart TD
+    START([طلب مستشفى<br/>إسرائيلية]) --> VALID{صحيح إذا:<br/>• طارئ/حياة<br/>• بلا علاج<br/>• استمرار}
+    VALID -->|لا| REJECT1["❌ غير صحيح"]
+    VALID -->|نعم| STUDY["🔍 العمليات<br/>تدرس"]
+    STUDY --> DECISION{قرار؟}
+    DECISION -->|لا| REJECT2["❌ مرفوض"]
+    DECISION -->|نعم| APPROVE["✅ موافق"]
+    APPROVE --> PRICE["💰 التسعير"]
+    PRICE --> ISSUE["📤 ارسل"]
+    ISSUE --> END_OK([علاج إسرائيلي])
+    REJECT1 --> END_NO1([غير موافق])
+    REJECT2 --> END_NO2([مرفوض])
+    style VALID fill:#fff3e0
+    style APPROVE fill:#c8e6c9
+    style END_OK fill:#c8e6c9
+    style REJECT1 fill:#ffcdd2
+    style REJECT2 fill:#ffcdd2`,
+        },
+        {
+          id: "diagram15",
+          nameAr: "15. الرحلة الكاملة - من البداية للنهاية",
+          nameEn: "15. Complete Journey - Start to Finish",
+          descAr: "رحلة التحويل الكاملة",
+          descEn: "Complete referral journey",
+          category: "overview",
+          code: `flowchart TD
+    A([1️⃣ المريض]) --> B["2️⃣ الطبيب"]
+    B --> C{3️⃣ طارئ؟}
+    C -->|نعم| D["🚑 سريع<br/>48 ساعة"]
+    C -->|لا| E["📋 عادي<br/>10-14 يوم"]
+    D --> F["اللجنة"]
+    E --> F
+    F --> G{موافقة؟}
+    G -->|لا| H["❌ مرفوض"]
+    G -->|نعم| I["العمليات"]
+    I --> J{نهائي؟}
+    J -->|لا| K["❌ مرفوض"]
+    J -->|نعم| L["✅ نشط"]
+    L --> M["المستشفى"]
+    M --> N["👤 المريض"]
+    N --> O["علاج"]
+    O --> P["مراقبة"]
+    P --> Q["خروج"]
+    Q --> R["مالية"]
+    R --> S([✅ نهاية])
+    style A fill:#e1f5ff
+    style D fill:#ffebee
+    style E fill:#f3e5f5
+    style L fill:#c8e6c9
+    style S fill:#c8e6c9
+    style H fill:#ffcdd2
+    style K fill:#ffcdd2`,
+        },
+        {
+          id: "diagram16",
+          nameAr: "16. خط زمني للحالات",
+          nameEn: "16. Case Timeline",
+          descAr: "تطور حالات التحويل",
+          descEn: "Case progression timeline",
+          category: "overview",
+          code: `flowchart LR
+    S1["مسودة"] --> S2["مرفوع"]
+    S2 --> S3["رئيس القسم"]
+    S3 --> S4["مدير"]
+    S4 --> S5["لجنة"]
+    S5 --> S6{قرار؟}
+    S6 -->|ناقص| S5_INC["⚠️ مستندات"]
+    S5_INC --> S5
+    S6 -->|مرفوض| S7R["❌ مرفوض"]
+    S6 -->|موافقة| S7["عمليات"]
+    S7 --> S8["✅ نشط"]
+    S8 --> S9["مستشفى"]
+    S9 --> S10["علاج"]
+    S10 --> S11["خروج"]
+    S11 --> S12["مالية"]
+    S12 --> S13["✅ دفع"]
+    style S1 fill:#e1f5ff
+    style S8 fill:#c8e6c9
+    style S13 fill:#a5d6a7
+    style S7R fill:#ffcdd2`,
+        },
+        {
+          id: "diagram17",
+          nameAr: "17. الممثلون والأدوار",
+          nameEn: "17. Actors & Roles",
+          descAr: "من يقوم بماذا في النظام",
+          descEn: "Who does what in the system",
+          category: "overview",
+          code: `graph TB
+    SYS["🖥️ النظام<br/>المركزي"]
+    SYS --> INPUT["📥 الإدخال"]
+    SYS --> DECISION["⚖️ القرار"]
+    SYS --> OUTPUT["📤 الإخراج"]
+    SYS --> SUPPORT["🛠️ الدعم"]
+
+    INPUT --> DOC["👨‍⚕️ أطباء"]
+    INPUT --> CHIEF["👔 رؤساء أقسام"]
+    INPUT --> DIR["👔 مديرو مستشفيات"]
+
+    DECISION --> REG["🏛️ إقليمية"]
+    DECISION --> SPEC["🏛️ تخصصية"]
+    DECISION --> EXC["🏛️ استثناءات"]
+    DECISION --> OPS["🏢 عمليات"]
+
+    OUTPUT --> REC["🏥 مستشفيات"]
+    OUTPUT --> PAT["👤 مرضى"]
+
+    SUPPORT --> CONTRACT["📋 عقود"]
+    SUPPORT --> FIN["💰 مالية"]
+    SUPPORT --> MONITOR["👁️ مراقبة"]
+
+    style SYS fill:#bbdefb
+    style INPUT fill:#e1f5ff
+    style DECISION fill:#fff3e0
+    style OUTPUT fill:#c8e6c9
+    style SUPPORT fill:#f3e5f5`,
+        },
+        {
+          id: "diagram18",
+          nameAr: "18. مصفوفة القرارات",
+          nameEn: "18. Decision Matrix",
+          descAr: "جميع النتائج المحتملة",
+          descEn: "All possible outcomes",
+          category: "overview",
+          code: `flowchart TD
+    START([التحويل<br/>مرفوع]) --> ROUTE{أي<br/>لجنة؟}
+    ROUTE -->|إقليمية| COM["اللجنة"]
+    ROUTE -->|تخصصية| COM
+    ROUTE -->|استثناءات| COM
+    COM --> VOTE["تصويت"]
+    VOTE --> OUTCOME1{النتيجة؟}
+    OUTCOME1 -->|موافقة| APP["✅ موافق"]
+    OUTCOME1 -->|رفض| REJ1["❌ مرفوض"]
+    OUTCOME1 -->|ناقص| INC["⚠️ ناقص"]
+    APP --> OPS["العمليات"]
+    INC --> DOCS["📤 مستندات"]
+    DOCS --> VOTE
+    OPS --> OPS_OUT{العمليات<br/>توافق؟}
+    OPS_OUT -->|نعم| FINAL_OK["✅ موافقة نهائية"]
+    OPS_OUT -->|لا| REJ2["❌ مرفوض"]
+    FINAL_OK --> HOSP["🏥 ارسل"]
+    HOSP --> END_OK([✅ استمرار])
+    REJ1 --> END_FAIL1([❌ توقف])
+    REJ2 --> END_FAIL2([❌ توقف])
+    style START fill:#e1f5ff
+    style OUTCOME1 fill:#fff3e0
+    style FINAL_OK fill:#c8e6c9
+    style END_OK fill:#a5d6a7
+    style REJ1 fill:#ffcdd2
+    style REJ2 fill:#ffcdd2`,
+        },
+      ];
+
+      function init() {
+        initDarkMode();
+        mermaid.initialize({ startOnLoad: true, theme: "default" });
+        switchTab("all");
+      }
+
+      function buildDiagramList() {
+        const list = document.getElementById("diagramList");
+        list.innerHTML = "";
+        diagrams.forEach((diagram) => {
+          const item = document.createElement("div");
+          item.className = "sidebar-item";
+          item.textContent =
+            currentLanguage === "ar" ? diagram.nameAr : diagram.nameEn;
+          item.onclick = () => showDiagram(diagram.id);
+          if (diagram.id === "diagram1") {
+            item.classList.add("active");
+          }
+          list.appendChild(item);
+        });
+      }
+
+      function showDiagram(id) {
+        const diagram = diagrams.find((d) => d.id === id);
+        if (!diagram) return;
+
+        // Update sidebar
+        document.querySelectorAll(".sidebar-item").forEach((item) => {
+          item.classList.remove("active");
+        });
+        event.target?.classList.add("active");
+
+        // Show diagram
+        const container = document.getElementById("flowcharts-container");
+        const titleEn = diagram.nameEn;
+        const titleAr = diagram.nameAr;
+        const descEn = diagram.descEn;
+        const descAr = diagram.descAr;
+
+        container.innerHTML = `
+                <div class="flowchart-container active">
+                    <h2 class="flowchart-title">${
+                      currentLanguage === "ar" ? titleAr : titleEn
+                    }</h2>
+                    <p class="flowchart-description">${
+                      currentLanguage === "ar" ? descAr : descEn
+                    }</p>
+                    <div class="mermaid">${diagram.code}</div>
+                    <div class="controls">
+                        <button onclick="downloadDiagram('${id}')" id="btn-download">تحميل صورة</button>
+                        <button onclick="copyCode('${id}')" id="btn-copy">نسخ الكود</button>
+                        <button onclick="printDiagram()" id="btn-print">طباعة</button>
+                    </div>
+                </div>
+            `;
+
+        mermaid.contentLoaded();
+      }
+
+      function switchTab(tab) {
+        currentTab = tab;
+        document.querySelectorAll(".tab-button").forEach((btn) => {
+          btn.classList.remove("active");
+        });
+        document.getElementById(`tab-${tab}`).classList.add("active");
+
+        const list = document.getElementById("diagramList");
+        list.innerHTML = "";
+        const filtered =
+          tab === "all"
+            ? diagrams
+            : tab === "overview"
+            ? diagrams.filter((d) => d.category === "overview")
+            : tab === "regular"
+            ? diagrams.filter((d) => d.category === "regular")
+            : tab === "special"
+            ? diagrams.filter((d) => d.category === "special")
+            : diagrams.filter((d) => d.category === "processes");
+
+        filtered.forEach((diagram) => {
+          const item = document.createElement("div");
+          item.className = "sidebar-item";
+          item.textContent =
+            currentLanguage === "ar" ? diagram.nameAr : diagram.nameEn;
+          item.onclick = () => showDiagram(diagram.id);
+          list.appendChild(item);
+        });
+
+        if (filtered.length > 0) {
+          showDiagram(filtered[0].id);
+        }
+      }
+
+      function toggleLanguage() {
+        currentLanguage = currentLanguage === "ar" ? "en" : "ar";
+        document.documentElement.dir = currentLanguage === "ar" ? "rtl" : "ltr";
+        document.documentElement.lang = currentLanguage;
+
+        // Update all text
+        updateLanguage();
+        buildDiagramList();
+        showDiagram("diagram1");
+      }
+
+      function updateLanguage() {
+        if (currentLanguage === "ar") {
+          document.getElementById("title").textContent =
+            "منصة التحويلات الطبية - لوحة سير العمل";
+          document.getElementById("subtitle").textContent =
+            "18 رسم بياني تفاعلي لسير العمليات";
+          document.getElementById("tab-all").textContent =
+            "جميع الرسوم البيانية";
+          document.getElementById("tab-overview").textContent = "نظرة عامة";
+          document.getElementById("tab-regular").textContent =
+            "التحويلات العادية";
+          document.getElementById("tab-special").textContent =
+            "التحويلات الخاصة";
+          document.getElementById("tab-processes").textContent = "العمليات";
+          document.getElementById("label-diagrams").textContent = "رسم بياني";
+          document.getElementById("label-categories").textContent = "فئات";
+          document.getElementById("label-coverage").textContent = "تغطية";
+          document.getElementById("legend-start").textContent =
+            "البداية/الإدخال";
+          document.getElementById("legend-decision").textContent =
+            "نقاط القرار";
+          document.getElementById("legend-success").textContent =
+            "النجاح/الموافقة";
+          document.getElementById("legend-reject").textContent = "الرفض/التوقف";
+          document.getElementById("footer").textContent =
+            "جميع الحقوق محفوظة © 2024 منصة التحويلات الطبية";
+          document.getElementById("searchInput").placeholder = "البحث...";
+          document.querySelector(".language-toggle").textContent =
+            "English | عربي";
+          document
+            .querySelectorAll("#btn-download")
+            .forEach((btn) => (btn.textContent = "تحميل صورة"));
+          document
+            .querySelectorAll("#btn-copy")
+            .forEach((btn) => (btn.textContent = "نسخ الكود"));
+          document
+            .querySelectorAll("#btn-print")
+            .forEach((btn) => (btn.textContent = "طباعة"));
+        } else {
+          document.getElementById("title").textContent =
+            "E-Referral Medical Platform - Workflow Dashboard";
+          document.getElementById("subtitle").textContent =
+            "18 Interactive Diagrams for Operations Flow";
+          document.getElementById("tab-all").textContent = "All Diagrams";
+          document.getElementById("tab-overview").textContent = "Overview";
+          document.getElementById("tab-regular").textContent =
+            "Regular Referrals";
+          document.getElementById("tab-special").textContent =
+            "Special Referrals";
+          document.getElementById("tab-processes").textContent = "Processes";
+          document.getElementById("label-diagrams").textContent = "Diagrams";
+          document.getElementById("label-categories").textContent =
+            "Categories";
+          document.getElementById("label-coverage").textContent = "Coverage";
+          document.getElementById("legend-start").textContent = "Start/Input";
+          document.getElementById("legend-decision").textContent =
+            "Decision Points";
+          document.getElementById("legend-success").textContent =
+            "Success/Approval";
+          document.getElementById("legend-reject").textContent =
+            "Rejection/Stop";
+          document.getElementById("footer").textContent =
+            "All Rights Reserved © 2024 E-Referral Medical Platform";
+          document.getElementById("searchInput").placeholder = "Search...";
+          document.querySelector(".language-toggle").textContent =
+            "English | عربي";
+          document
+            .querySelectorAll("#btn-download")
+            .forEach((btn) => (btn.textContent = "Download Image"));
+          document
+            .querySelectorAll("#btn-copy")
+            .forEach((btn) => (btn.textContent = "Copy Code"));
+          document
+            .querySelectorAll("#btn-print")
+            .forEach((btn) => (btn.textContent = "Print"));
+        }
+      }
+
+      function filterDiagrams() {
+        const searchText = document
+          .getElementById("searchInput")
+          .value.toLowerCase();
+        const items = document.querySelectorAll(".sidebar-item");
+        items.forEach((item) => {
+          const text = item.textContent.toLowerCase();
+          item.style.display = text.includes(searchText) ? "block" : "none";
+        });
+      }
+
+      function downloadDiagram(id) {
+        const svg = document.querySelector(".mermaid svg");
+        if (!svg) {
+          alert(
+            currentLanguage === "ar"
+              ? "لم يتم رسم الرسم البياني بعد"
+              : "Diagram not rendered yet"
+          );
+          return;
+        }
+
+        const canvas = document.createElement("canvas");
+        const ctx = canvas.getContext("2d");
+        const width = svg.viewBox.baseVal.width || svg.clientWidth;
+        const height = svg.viewBox.baseVal.height || svg.clientHeight;
+
+        canvas.width = width;
+        canvas.height = height;
+
+        const img = new Image();
+        img.src =
+          "data:image/svg+xml;base64," +
+          btoa(new XMLSerializer().serializeToString(svg));
+        img.onload = function () {
+          ctx.drawImage(img, 0, 0);
+          const link = document.createElement("a");
+          link.href = canvas.toDataURL();
+          link.download = `diagram-${id}.png`;
+          link.click();
+        };
+      }
+
+      function copyCode(id) {
+        const diagram = diagrams.find((d) => d.id === id);
+        const code = "```mermaid\n" + diagram.code + "\n```";
+        navigator.clipboard.writeText(code).then(() => {
+          alert(currentLanguage === "ar" ? "تم نسخ الكود" : "Code copied!");
+        });
+      }
+
+      function printDiagram() {
+        window.print();
+      }
+
+      // Initialize on page load
+      window.onload = init;
+    </script>
+  </body>
+</html>
